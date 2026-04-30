@@ -38,6 +38,7 @@ extern crate alloc;
 mod aabb;
 mod algorithm;
 mod envelope;
+pub mod etna;
 mod node;
 mod object;
 mod params;

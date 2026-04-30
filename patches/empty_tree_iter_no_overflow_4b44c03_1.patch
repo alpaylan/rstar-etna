@@ -1,0 +1,38 @@
+--- a/rstar/src/algorithm/iterators.rs
++++ b/rstar/src/algorithm/iterators.rs
+@@ -55,7 +55,7 @@ where
+ {
+     pub(crate) fn new(root: &'a ParentNode<T>, func: Func) -> Self {
+         let current_nodes =
+-            if !root.children.is_empty() && func.should_unpack_parent(&root.envelope()) {
++            if func.should_unpack_parent(&root.envelope()) {
+                 root.children.iter().collect()
+             } else {
+                 SmallVec::new()
+@@ -137,7 +137,7 @@ where
+         ControlFlow::Continue(())
+     }
+
+-    if !root.children.is_empty() && func.should_unpack_parent(&root.envelope()) {
++    if func.should_unpack_parent(&root.envelope()) {
+         inner(root, &mut Args { func, visitor })?;
+     }
+
+@@ -161,7 +161,7 @@ where
+ {
+     pub(crate) fn new(root: &'a mut ParentNode<T>, func: Func) -> Self {
+         let current_nodes =
+-            if !root.children.is_empty() && func.should_unpack_parent(&root.envelope()) {
++            if func.should_unpack_parent(&root.envelope()) {
+                 root.children.iter_mut().collect()
+             } else {
+                 SmallVec::new()
+@@ -243,7 +243,7 @@ where
+         ControlFlow::Continue(())
+     }
+
+-    if !root.children.is_empty() && func.should_unpack_parent(&root.envelope()) {
++    if func.should_unpack_parent(&root.envelope()) {
+         inner(root, &mut Args { func, visitor })?;
+     }
+

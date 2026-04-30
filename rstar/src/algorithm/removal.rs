@@ -98,7 +98,13 @@ where
         let original_size = replace(rtree.size_mut(), 0);
 
         let m = Params::MIN_SIZE;
-        let max_depth = (original_size as f32).log(m.max(2) as f32).ceil() as usize;
+        /*| min_size_one_log_clamp */
+        let max_depth = (original_size as f32) . log (m . max (2) as f32) . ceil () as usize;
+        /*|| min_size_one_log_clamp_44e1bf5_1 */
+        /*|
+        let max_depth = (original_size as f32) . log (m as f32) . ceil () as usize;
+        */
+        /* |*/
         let mut node_stack = Vec::with_capacity(max_depth);
         node_stack.push((root, 0, 0));
 

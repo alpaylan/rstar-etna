@@ -4,9 +4,16 @@ resolver = "2"
 members = [
     "rstar",
     "rstar-demo",
-    "rstar-benches"
+    "rstar-benches",
+    "etna_runner",
 ]
 
 # Ensure any transitive dependencies, e.g. via `geo`, use the local `rstar` crate
 [patch.crates-io]
 rstar = { path = "rstar" }
+
+# ETNA-only: enable runtime arithmetic checks even in release so the
+# empty-tree i64 overflow bug (4b44c0346) panics where frameworks can catch
+# it instead of silently wrapping.
+[profile.release]
+overflow-checks = true

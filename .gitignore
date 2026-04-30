@@ -1,3 +1,6 @@
 target
 Cargo.lock
 .idea
+.hegel/
+etna.log
+progress.jsonl

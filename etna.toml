@@ -1,0 +1,140 @@
+name = "rstar"
+description = "rstar — n-dimensional R*-tree spatial index. ETNA workload mining bug-fix commits in georust/rstar."
+language = "rust"
+crate = "rstar"
+base_commit = "4e510b0b85ec8e6994a03104a5075ae4701d1bfa"
+
+[[tasks]]
+mutations = ["min_size_one_log_clamp_44e1bf5_1"]
+
+[tasks.source]
+repo = "https://github.com/georust/rstar"
+commits = ["44e1bf54192ad96672a465fcf95025180e540c3d"]
+commit_subjects = ["Fix panic when setting RTreeParams MIN_SIZE to 1"]
+issues = [92]
+summary = "DrainIterator::new pre-allocates a node stack with `(N as f32).log(MIN_SIZE as f32)` levels, but `log(_, 1.0)` is undefined and yields NaN, which casts to `usize::MAX`-ish — `Vec::with_capacity` panics with `capacity overflow`. The fix clamps the log base to `MIN_SIZE.max(2)` so a single-element minimum doesn't poison the depth estimate."
+
+[tasks.injection]
+kind = "marauders"
+files = ["rstar/src/algorithm/removal.rs"]
+locations = [{ file = "rstar/src/algorithm/removal.rs", line = 102, symbol = "DrainIterator::new" }]
+
+[tasks.bug]
+short_name = "min_size_one_log_clamp"
+invariant = "Removing an element from an `RTree` configured with `MIN_SIZE = 1` does not panic. The depth-estimate inside `DrainIterator::new` must remain finite for any legal `MIN_SIZE`."
+how_triggered = "The mutation reverts the clamp `m.max(2)` to plain `m`. With `Params::MIN_SIZE = 1`, `(N as f32).log(1.0)` evaluates to NaN/Inf; the subsequent `as usize` cast saturates to a huge value that `Vec::with_capacity` rejects with `capacity overflow`, panicking on the first call to `tree.remove(_)`."
+
+[[tasks.tasks]]
+property = "MinSizeOneNoPanic"
+witnesses = [
+  { test_fn = "witness_min_size_one_no_panic_case_two_points" },
+]
+
+[[tasks]]
+mutations = ["bulk_load_clusters_clamp_0139255a_1"]
+
+[tasks.source]
+repo = "https://github.com/georust/rstar"
+commits = ["0139255a78ada92277ce0d1025c009254ea5b298"]
+commit_subjects = ["Defend against numerical instability when computing number of clusters (#166)"]
+prs = [166]
+summary = "OMT bulk loading recursively partitions the input into `number_of_clusters_on_axis` clusters per dimension. For specific input sizes (e.g. `N = MAX_SIZE^k`), the depth calculation `(N as f32).log(MAX_SIZE)` returns `k + eps` instead of `k` exactly; ceil pushes depth one too far, the per-cluster count rounds down to 1, and the recursion never terminates — eventually overflowing the stack."
+
+[tasks.injection]
+kind = "marauders"
+files = ["rstar/src/algorithm/bulk_load/bulk_load_sequential.rs"]
+locations = [{ file = "rstar/src/algorithm/bulk_load/bulk_load_sequential.rs", line = 31, symbol = "bulk_load_recursive" }]
+
+[tasks.bug]
+short_name = "bulk_load_clusters_clamp"
+invariant = "`RTree::bulk_load(points)` terminates and returns a tree containing every input point, even at sizes that hit floating-point imprecision in the cluster-count calculation (notably `N = MAX_SIZE^k` for small k)."
+how_triggered = "The mutation removes the `.max(2)` clamp from the cluster count, so when log-imprecision yields `number_of_clusters = 1`, the recursion partitions one input slab into one slab and recurses on the same set; depth grows unbounded and the thread stack overflows."
+
+[[tasks.tasks]]
+property = "BulkLoadSizeCorrect"
+witnesses = [
+  { test_fn = "witness_bulk_load_size_correct_case_log_imprecision", note = "N = 216 (= 6^3 with default MAX_SIZE = 6) hits the log-imprecision case." },
+]
+
+[[tasks]]
+mutations = ["empty_tree_iter_no_overflow_4b44c03_1"]
+
+[tasks.source]
+repo = "https://github.com/georust/rstar"
+commits = ["4b44c0346c030802d5a092cf9001af303423bce4"]
+commit_subjects = ["Revert back to min/max representation of empty AABB (#184)"]
+prs = [184]
+issues = [183]
+summary = "After PR #162 changed `AABB::new_empty()` from `(max_value, min_value)` to `(one, zero)`, downstream code regressed when merging empty AABBs with negative-coordinate envelopes. PR #184 reverts the empty representation but adds a guard inside the selection iterators: when the root has no children, do not call `should_unpack_parent` (which would compute `distance_2` from the query to the empty AABB and overflow integer coordinates)."
+
+[tasks.injection]
+kind = "patch"
+files = ["rstar/src/algorithm/iterators.rs"]
+locations = [
+  { file = "rstar/src/algorithm/iterators.rs", line = 58, symbol = "SelectionIterator::new" },
+  { file = "rstar/src/algorithm/iterators.rs", line = 140, symbol = "select_nodes" },
+  { file = "rstar/src/algorithm/iterators.rs", line = 164, symbol = "SelectionIteratorMut::new" },
+  { file = "rstar/src/algorithm/iterators.rs", line = 246, symbol = "select_nodes_mut" },
+]
+patch = "patches/empty_tree_iter_no_overflow_4b44c03_1.patch"
+
+[tasks.bug]
+short_name = "empty_tree_iter_no_overflow"
+invariant = "Selection-based queries on an empty `RTree` (e.g. `locate_within_distance` with integer coordinates) do not arithmetic-overflow when computing the distance from the query to the root's empty AABB."
+how_triggered = "The patch removes the `!root.children.is_empty()` short-circuit at every entry to `should_unpack_parent`. With an empty tree, the root's AABB is `[i64::MAX..i64::MIN]`; `distance_2` subtracts those (already an overflow) and then squares the difference. Overflow checks (enabled in this workload's release profile) trip a panic; without overflow checks the wrapped distance still differs from the true zero result."
+
+[[tasks.tasks]]
+property = "EmptyTreeQueryNoPanic"
+witnesses = [
+  { test_fn = "witness_empty_tree_query_no_panic_case_origin", note = "Regression test #161: `locate_within_distance` on an empty `RTree<[i64; 3]>` previously panicked." },
+]
+
+[[dropped]]
+commit = "d574780"
+subject = "Fix transcription error in implementation of OMT bulk loading (#221)"
+reason = "no observable public invariant: bug only oversizes internal nodes; tree.size() and locate_at_point still succeed"
+
+[[dropped]]
+commit = "dde5abd"
+subject = "Fix broken loop break condition"
+reason = "surface removed: remove_recursive replaced by DrainIterator in 2023"
+
+[[dropped]]
+commit = "84d12654"
+subject = "Fix overflows applying selection iterators to empty trees by choosing a more tame value for AABB::new_empty (#162)"
+reason = "fix later reverted in 4b44c0346; the overflow defense at HEAD lives in iterators.rs (covered by 4b44c0346 variant)"
+
+[[dropped]]
+commit = "f93071f"
+subject = "Fix excessive memory usage in bulk_load due to Vec over-capacity (#220)"
+reason = "no observable public invariant: bug only inflates allocator pressure; tree behaviour is unchanged"
+
+[[dropped]]
+commit = "9aa17e6"
+subject = "SelectionIteratorMut should respect should_unpack_leaf"
+reason = "fix subsumed by 4b44c0346's iterators.rs rewrite; would conflict with empty_tree_iter_no_panic variant"
+
+[[dropped]]
+commit = "df8f740"
+subject = "Fix stack overflow error in DrainIterator"
+reason = "no observable public invariant under normal data: recursion depth = tree depth = log(N), too shallow to overflow even in debug mode; the buggy and fixed forms are behaviorally equivalent for any tree built via bulk_load or insert"
+
+[[dropped]]
+commit = "895f8493"
+subject = "Fix nearest neighbor min-max heuristic"
+reason = "surface removed: the original `min_max_dist_2` body that constructed `p = min/max` then mutated one component was rewritten in b7c66d0 to a per-axis formulation; the bug site no longer exists at HEAD"
+
+[[dropped]]
+commit = "b7c66d0"
+subject = "Aabb: fix min_max_dist_2 consistency with distance_2"
+reason = "no observable public invariant under normal coordinates: the fix is a floating-point order-of-operations adjustment that only manifests at extreme magnitudes (~1e57) where unit tests check `min_max_dist_2 == distance_2`; the public `nearest_neighbor` query still returns the correct point because the heuristic only prunes branches whose lower bound would exclude the true nearest"
+
+[[dropped]]
+commit = "7634435"
+subject = "Fix AABB::from_points which relied on implementation details of AABB::new_empty (#171)"
+reason = "no observable invariant at HEAD: the fix decoupled from_points from new_empty's (one, zero) representation, but 4b44c0346 reverted new_empty back to (max, min) so the buggy form (`new_empty().add_point(p)`) and the fixed form (explicit max/min fold init) are now behaviorally equivalent"
+
+[[dropped]]
+commit = "47efe51"
+subject = "Bugfix: Fixes #45 (batched reinsert)"
+reason = "no public-API repro at HEAD: the original reproducer (from PR #45) used 3D points where bulk_load + 10 follow-up inserts triggered a tree-internal `unreachable!()` only caught by `sanity_check`, which is `#[cfg(test)]`. Replaying the same input with the buggy form at HEAD does not re-trigger the bug — surrounding code (envelope_for_children, choose_subtree heuristic) drifted enough that the same input no longer hits the multi-reinsert path."
