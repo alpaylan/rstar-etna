@@ -1,6 +1,7 @@
 name = "rstar"
 description = "rstar — n-dimensional R*-tree spatial index. ETNA workload mining bug-fix commits in georust/rstar."
 language = "rust"
+strategies = ["proptest", "quickcheck", "crabcheck", "hegel"]
 crate = "rstar"
 base_commit = "4e510b0b85ec8e6994a03104a5075ae4701d1bfa"
 

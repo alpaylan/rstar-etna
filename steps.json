@@ -1,0 +1,23 @@
+{
+  "setup_steps": [],
+  "build_steps": [
+    {
+      "Command": {
+        "command": "cargo",
+        "args": ["build", "--release", "--bin", "etna", "--package", "etna_runner"],
+        "run_at": "${workload_path}"
+      }
+    }
+  ],
+  "capabilities": {
+    "solve": [
+      {
+        "Command": {
+          "command": "${workload_path}/target/release/etna",
+          "args": ["${strategy}", "${property}"],
+          "params": ["workload_path", "property", "strategy"]
+        }
+      }
+    ]
+  }
+}
