@@ -27,13 +27,7 @@ where
         let elements: Vec<_> = elements.into_iter().map(RTreeNode::Leaf).collect();
         return ParentNode::new_parent(elements);
     }
-    /*| bulk_load_clusters_clamp */
     let number_of_clusters_on_axis = calculate_number_of_clusters_on_axis :: < T , Params > (elements . len ()) . max (2);
-    /*|| bulk_load_clusters_clamp_0139255a_1 */
-    /*|
-    let number_of_clusters_on_axis = calculate_number_of_clusters_on_axis :: < T , Params > (elements . len ());
-    */
-    /* |*/
 
     let iterator = PartitioningTask::<_, Params> {
         number_of_clusters_on_axis,
