@@ -8,6 +8,18 @@ members = [
     "etna_runner",
 ]
 
+# `cargo build --release` (no -p) only touches these by default. rstar-demo
+# pulls in kiss3d → parry3d 0.25.3 whose mesh_intersection module calls
+# rstar's `nearest_neighbor(&point)` while the modern rstar API takes
+# `nearest_neighbor(point)` — upstream parry3d hasn't caught up. Excluding
+# the demo from the default set keeps the canary's pre-build step clean.
+# The demo can still be built explicitly via `cargo build -p rstar-demo`.
+default-members = [
+    "rstar",
+    "rstar-benches",
+    "etna_runner",
+]
+
 # Ensure any transitive dependencies, e.g. via `geo`, use the local `rstar` crate
 [patch.crates-io]
 rstar = { path = "rstar" }
