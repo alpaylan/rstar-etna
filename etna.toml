@@ -16,7 +16,8 @@ issues = [92]
 summary = "DrainIterator::new pre-allocates a node stack with `(N as f32).log(MIN_SIZE as f32)` levels, but `log(_, 1.0)` is undefined and yields NaN, which casts to `usize::MAX`-ish — `Vec::with_capacity` panics with `capacity overflow`. The fix clamps the log base to `MIN_SIZE.max(2)` so a single-element minimum doesn't poison the depth estimate."
 
 [tasks.injection]
-kind = "marauders"
+kind = "patch"
+patch = "patches/min_size_one_log_clamp_44e1bf5_1.patch"
 files = ["rstar/src/algorithm/removal.rs"]
 locations = [{ file = "rstar/src/algorithm/removal.rs", line = 102, symbol = "DrainIterator::new" }]
 
@@ -42,7 +43,8 @@ prs = [166]
 summary = "OMT bulk loading recursively partitions the input into `number_of_clusters_on_axis` clusters per dimension. For specific input sizes (e.g. `N = MAX_SIZE^k`), the depth calculation `(N as f32).log(MAX_SIZE)` returns `k + eps` instead of `k` exactly; ceil pushes depth one too far, the per-cluster count rounds down to 1, and the recursion never terminates — eventually overflowing the stack."
 
 [tasks.injection]
-kind = "marauders"
+kind = "patch"
+patch = "patches/bulk_load_clusters_clamp_0139255a_1.patch"
 files = ["rstar/src/algorithm/bulk_load/bulk_load_sequential.rs"]
 locations = [{ file = "rstar/src/algorithm/bulk_load/bulk_load_sequential.rs", line = 31, symbol = "bulk_load_recursive" }]
 
