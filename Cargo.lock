@@ -492,6 +492,7 @@ dependencies = [
 [[package]]
 name = "crabcheck"
 version = "0.1.0"
+source = "git+https://github.com/alpaylan/crabcheck.git?branch=main#0ce4b86581c1d52d1d48301b1b5cb86ed0696f7b"
 dependencies = [
  "cpu-time",
  "glob",
@@ -1147,13 +1148,14 @@ checksum = "2304e00983f87ffb38b55b444b5e3b60a884b5d30c0fca7d82fe33449bbe55ea"
 
 [[package]]
 name = "hegeltest"
-version = "0.3.7"
+version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d0ed973cb20e511f82953288d815cb08983695a26519c3e9f59941d163bf9d19"
+checksum = "2ed5bbf15732c764f25599e4fbee8fc67403d297307b61f5cc5db8331f88b95c"
 dependencies = [
  "ciborium",
  "crc32fast",
  "hegeltest-macros",
+ "parking_lot",
  "paste",
  "serde",
  "tempfile",
@@ -1161,9 +1163,9 @@ dependencies = [
 
 [[package]]
 name = "hegeltest-macros"
-version = "0.3.7"
+version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4f02fefc14c7e6bf4999b549649e463276b3cf342cdfc1e25935f14fa48c2164"
+checksum = "b54960d9e4ce7e876432b0858d75cd39f4cecf43aec7e62cf4508a8a197f27c7"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1454,6 +1456,15 @@ name = "linux-raw-sys"
 version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "df1d3c3b53da64cf5760482273a98e575c651a67eec7f77df96b5b642de8f039"
+
+[[package]]
+name = "lock_api"
+version = "0.4.14"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "224399e74b87b5f3557511d98dff8b14089b3dadafcab6bb93eab67d3aace965"
+dependencies = [
+ "scopeguard",
+]
 
 [[package]]
 name = "log"
@@ -2082,6 +2093,29 @@ dependencies = [
 ]
 
 [[package]]
+name = "parking_lot"
+version = "0.12.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "93857453250e3077bd71ff98b6a65ea6621a19bb0f559a85248955ac12c45a1a"
+dependencies = [
+ "lock_api",
+ "parking_lot_core",
+]
+
+[[package]]
+name = "parking_lot_core"
+version = "0.9.12"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2621685985a2ebf1c516881c026032ac7deafcda1a2c9b7850dc81e3dfcb64c1"
+dependencies = [
+ "cfg-if",
+ "libc",
+ "redox_syscall 0.5.18",
+ "smallvec",
+ "windows-link",
+]
+
+[[package]]
 name = "parry3d"
 version = "0.25.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2321,6 +2355,7 @@ dependencies = [
 [[package]]
 name = "quickcheck"
 version = "1.0.3"
+source = "git+https://github.com/alpaylan/quickcheck.git?branch=master#687d76561e7b1af849ed3e90f3a5cef8c5b4d825"
 dependencies = [
  "env_logger",
  "erased-serde",
@@ -2737,6 +2772,12 @@ name = "scoped-tls"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e1cf6437eb19a8f4a6cc0f7dca544973b0b78843adbfeb3683d1a94a0024a294"
+
+[[package]]
+name = "scopeguard"
+version = "1.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "94143f37725109f92c262ed2cf5e59bce7498c01bcc1502d7b9afe439a4e9f49"
 
 [[package]]
 name = "sctk-adwaita"

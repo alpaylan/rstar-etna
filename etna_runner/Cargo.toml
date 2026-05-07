@@ -13,4 +13,4 @@ rstar = { path = "../rstar" }
 proptest = "1.0"
 quickcheck = { git = "https://github.com/alpaylan/quickcheck.git", branch = "master", features = ["etna"] }
 crabcheck = { git = "https://github.com/alpaylan/crabcheck.git", branch = "main" }
-hegeltest = "0.3.7"
+hegeltest = "0.11.0"
