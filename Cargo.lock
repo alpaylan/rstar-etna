@@ -492,6 +492,7 @@ dependencies = [
 [[package]]
 name = "crabcheck"
 version = "0.1.0"
+source = "git+https://github.com/alpaylan/crabcheck.git?branch=main#0ce4b86581c1d52d1d48301b1b5cb86ed0696f7b"
 dependencies = [
  "cpu-time",
  "glob",
@@ -832,9 +833,9 @@ checksum = "aa9a19cbb55df58761df49b23516a86d432839add4af60fc256da840f66ed35b"
 
 [[package]]
 name = "geo-types"
-version = "0.7.17"
+version = "0.7.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "75a4dcd69d35b2c87a7c83bce9af69fd65c9d68d3833a0ded568983928f3fc99"
+checksum = "94776032c45f950d30a13af6113c2ad5625316c9abfbccee4dd5a6695f8fe0f5"
 dependencies = [
  "approx 0.5.1",
  "num-traits",
@@ -2321,6 +2322,7 @@ dependencies = [
 [[package]]
 name = "quickcheck"
 version = "1.0.3"
+source = "git+https://github.com/alpaylan/quickcheck.git?branch=master#687d76561e7b1af849ed3e90f3a5cef8c5b4d825"
 dependencies = [
  "env_logger",
  "erased-serde",
