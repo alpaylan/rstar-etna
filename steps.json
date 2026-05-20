@@ -4,7 +4,12 @@
     {
       "Command": {
         "command": "cargo",
-        "args": ["build", "--release", "--bin", "etna", "--package", "etna_runner"],
+        "args": [
+          "build",
+          "--release",
+          "--bin",
+          "etna"
+        ],
         "run_at": "${workload_path}"
       }
     }
@@ -14,8 +19,15 @@
       {
         "Command": {
           "command": "${workload_path}/target/release/etna",
-          "args": ["${strategy}", "${property}"],
-          "params": ["workload_path", "property", "strategy"]
+          "args": [
+            "${strategy}",
+            "${property}"
+          ],
+          "params": [
+            "workload_path",
+            "property",
+            "strategy"
+          ]
         }
       }
     ]
